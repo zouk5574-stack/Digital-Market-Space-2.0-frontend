@@ -4,8 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import sellerService from '../services/sellerService';
 import { useAuth } from '../context/AuthContext';
 import WithdrawalModal from '../components/WithdrawalModal';
-// Import d'icônes (nécessite l'installation de 'lucide-react' ou similaire)
 import { DollarSign, Briefcase, TrendingUp, Store } from 'lucide-react'; 
+
+// 🚨 IMPORTATION DU FICHIER DE STYLE CSS MAJESTUEUX
+import '../styles/Dashboard.css'; 
 
 // --- Composants de Cartes pour le Design Majestueux ---
 
@@ -98,7 +100,6 @@ function SellerDashboard() {
         }
         
         // Redirection vers une page de formulaire de création de boutique (Meilleure UX)
-        // Vous devez créer la route et la page : /seller/shops/create
         navigate('/seller/shops/create'); 
     };
 
@@ -257,4 +258,4 @@ function SellerDashboard() {
 }
 
 export default SellerDashboard;
-        
+                    
