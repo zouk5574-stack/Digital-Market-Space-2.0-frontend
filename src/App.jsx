@@ -14,11 +14,11 @@ import UnauthorizedPage from './pages/Unauthorized';
 import AdminDashboard from './pages/AdminDashboard';
 import SellerDashboard from './pages/SellerDashboard';
 import GeneralDashboard from './pages/GeneralDashboard';
-import BuyerMissionsPage from './pages/BuyerMissionsPage'; // <-- Nouvelle page pour l'Acheteur
+import BuyerMissionsPage from './pages/BuyerMissionsPage'; 
 
 // PAGES DES FLUX MÉTIER
 import DeliverWorkPage from './pages/DeliverWorkPage'; 
-import CreateMissionPage from './pages/CreateMissionPage'; // <-- À créer par l'Acheteur
+import CreateMissionPage from './pages/CreateMissionPage'; 
 
 
 function App() {
@@ -59,14 +59,21 @@ function App() {
                             />
                         </Route>
 
-                        {/* 3. Accès ACHETEUR (et ACHETEUR/VENDEUR/ADMIN pour les pages communes) */}
+                        {/* 3. Accès ACHETEUR (et ACHETEUR/ADMIN pour les pages critiques) */}
+                        {/* Note : J'ai gardé ACHETEUR et ADMIN ici pour la flexibilité de test */}
                         <Route element={<ProtectedRoute allowedRoles={["ACHETEUR", "ADMIN"]} />}>
                             <Route path="/buyer/missions" element={<BuyerMissionsPage />} />
-                            <Route path="/buyer/missions/create" element={<CreateMissionPage />} />
+                            
+                            {/* ROUTE CRITIQUE : Création de la mission et Séquestre des fonds */}
+                            <Route 
+                                path="/buyer/missions/create" 
+                                element={<CreateMissionPage />} 
+                            />
                             {/* Ajoutez ici toutes les routes Acheteur spécifiques (gestion des paiements, des commandes) */}
                         </Route>
 
                         {/* 4. Routes Générales (Nécessite juste d'être connecté) */}
+                        {/* AllowedRoles non spécifié = n'importe quel rôle authentifié */}
                         <Route element={<ProtectedRoute />}>
                             <Route path="/dashboard" element={<GeneralDashboard />} />
                             {/* Exemple: Page de profil utilisateur, Messagerie... */}
@@ -85,3 +92,4 @@ function App() {
 }
 
 export default App;
+            
