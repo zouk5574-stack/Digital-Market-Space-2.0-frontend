@@ -1,19 +1,18 @@
 // frontend/src/pages/CreateMissionPage.jsx
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import buyerService from '../services/buyerService';
+import buyerService from '../services/buyerService'; 
 import { Loader2 } from 'lucide-react'; 
 
-// Importation du style majestueux pour la cohérence visuelle
 import '../styles/Dashboard.css';
 
 function CreateMissionPage() {
-    const navigate = useNavigate();
+    // Note: Pas besoin de useNavigate ici, car nous redirigeons l'utilisateur vers FedaPay
+    
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        price: '', // Montant en XOF
-        category: 'web_development', // Valeur par défaut
+        price: '', 
+        category: 'web_development', 
     });
     const [loading, setLoading] = useState(false);
     const [alertMessage, setAlertMessage] = useState(null);
@@ -44,25 +43,31 @@ function CreateMissionPage() {
         };
 
         try {
-            // L'appel au service déclenche la logique d'Escrow (prélèvement)
-            const newMission = await buyerService.createMission(missionData);
+            // 🚨 1. Appel Backend pour Créer la Mission et l'URL FedaPay
+            // Le Backend crée la mission en statut 'pending_payment' et initialise la transaction FedaPay.
+            const response = await buyerService.createMission(missionData);
             
-            setAlertMessage({ 
-                type: 'success', 
-                text: `Mission "${newMission.title}" créée avec succès. ${newMission.escrow_amount.toFixed(2)} XOF ont été mis en séquestre. Redirection...` 
-            });
-            
-            // Rediriger vers la liste des missions après un court délai
-            setTimeout(() => {
-                navigate('/buyer/missions');
-            }, 2500);
+            if (response.redirect_url) {
+                
+                setAlertMessage({ 
+                    type: 'info', 
+                    text: "Mission initialisée. Redirection vers la page de paiement FedaPay pour séquestrer les fonds..."
+                });
+                
+                // 🚨 2. Redirection vers l'URL de paiement
+                window.location.href = response.redirect_url;
+                
+                // Le composant s'arrête ici, l'utilisateur est sur FedaPay.
+                return; 
+            } else {
+                 throw new Error("Le serveur n'a pas fourni d'URL de redirection de paiement FedaPay. Vérifiez la configuration.");
+            }
 
         } catch (error) {
-            console.error("Erreur de création de mission :", error.response?.data?.message || error.message);
-            // On affiche le message d'erreur du backend (ex: "Fonds insuffisants")
+            console.error("Erreur de création de mission ou de paiement :", error.response?.data?.message || error.message);
             setAlertMessage({ 
                 type: 'error', 
-                text: error.response?.data?.message || "Échec de la création de la mission. Vérifiez votre solde ou le serveur." 
+                text: error.response?.data?.message || "Échec de l'initialisation du paiement. Vérifiez le serveur." 
             });
         } finally {
             setLoading(false);
@@ -72,9 +77,9 @@ function CreateMissionPage() {
     return (
         <div className="create-mission-page majestic-layout">
             <header className="dashboard-header">
-                <h1>Créer une Nouvelle Mission 💰 (Escrow)</h1>
+                <h1>Créer une Nouvelle Mission 💳 (Paiement FedaPay)</h1>
                 <p className="subtitle">
-                    Le montant sera **séquestré** (Escrow) depuis votre solde et ne sera libéré au Vendeur qu'après votre validation.
+                    Le paiement sera effectué sur FedaPay et les fonds seront **séquestrés** (Escrow) jusqu'à validation de la livraison.
                 </p>
             </header>
 
@@ -83,6 +88,7 @@ function CreateMissionPage() {
             )}
 
             <form onSubmit={handleSubmit} className="majestic-card" style={{ maxWidth: '800px', margin: '0 auto' }}>
+
                 <div className="form-group">
                     <label htmlFor="title">Titre de la Mission</label>
                     <input
@@ -127,7 +133,7 @@ function CreateMissionPage() {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="price">Montant Séquestré (XOF)</label>
+                    <label htmlFor="price">Montant à Payer (XOF)</label>
                     <input
                         type="number"
                         id="price"
@@ -135,7 +141,7 @@ function CreateMissionPage() {
                         value={formData.price}
                         onChange={handleChange}
                         required
-                        min="1"
+                        min="100" 
                         step="100"
                         disabled={loading}
                     />
@@ -144,10 +150,10 @@ function CreateMissionPage() {
                 <button type="submit" className="btn btn-primary" disabled={loading}>
                     {loading ? (
                         <>
-                            <Loader2 size={18} className="animate-spin" /> Séquestre en cours...
+                            <Loader2 size={18} className="animate-spin" /> Préparation du paiement...
                         </>
                     ) : (
-                        'Créer la Mission & Séquestrer les Fonds'
+                        'Procéder au Paiement via FedaPay'
                     )}
                 </button>
             </form>
