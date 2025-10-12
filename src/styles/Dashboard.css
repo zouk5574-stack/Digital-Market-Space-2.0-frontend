@@ -1,32 +1,47 @@
 /* ========================================= */
-/* 👑 Thème Global & Variables MAJESTUEUSES */
+/* 👑 Thème Digital Market Space */
 /* ========================================= */
 :root {
-    /* Couleurs du Thème */
-    --color-primary: #004085;      /* Bleu Saphir (Actions, Headers) */
-    --color-secondary: #007bff;     /* Bleu Clair (Boutons, Liens) */
-    --color-accent: #FFD700;       /* Or (Revenus, Accents Clés) */
-    --color-background: #F4F6F9;   /* Fond Gris Clair Aéré */
-    --color-card-bg: #FFFFFF;      /* Fond des Cartes (Blanc Net) */
-    --color-text-dark: #212529;    /* Texte Principal */
-    --color-text-light: #6c757d;   /* Texte Secondaire */
+    --color-primary: #004085;
+    --color-secondary: #007bff;
+    --color-accent: #FFD700;
+    --color-background: #F4F6F9;
+    --color-card-bg: #FFFFFF;
+    --color-text-dark: #212529;
+    --color-text-light: #6c757d;
     --color-success: #28a745;
     --color-warning: #ffc107;
+    --color-danger: #dc3545;
 
-    /* Ombres et Espacement */
     --shadow-subtle: 0 4px 8px rgba(0, 0, 0, 0.05);
     --shadow-lift: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* ========================================= */
-/* 👑 Layout Général et Structure */
-/* ========================================= */
-.seller-dashboard.majestic-layout, /* Appliqué au Seller Dashboard */
-.buyer-missions.majestic-layout    /* Appliqué au Buyer Dashboard */
-{
+/* Header Global */
+.global-header {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    color: white;
+    padding: 1rem 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-subtle);
+}
+
+.global-header h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.global-header p {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+}
+
+/* Layout Majestueux */
+.majestic-layout {
     padding: 30px;
     background-color: var(--color-background);
-    min-height: 100vh;
+    min-height: calc(100vh - 120px);
 }
 
 .dashboard-header {
@@ -47,29 +62,13 @@
     font-size: 1.1rem;
 }
 
-.majestic-separator {
-    height: 1px;
-    background-color: #E0E0E0;
-    margin: 40px 0;
-}
-
-/* ========================================= */
-/* 👑 Cartes et KPIs (Majestic Cards) */
-/* ========================================= */
-.financial-overview {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 30px;
-}
-
+/* Cartes */
 .majestic-card {
     background: var(--color-card-bg);
     border-radius: 12px;
     box-shadow: var(--shadow-subtle);
     padding: 25px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
-    overflow: hidden;
 }
 
 .majestic-card:hover {
@@ -77,116 +76,17 @@
     box-shadow: var(--shadow-lift);
 }
 
-.card-title {
-    font-size: 1.1rem;
-    color: var(--color-primary);
-    font-weight: 600;
-    margin-top: 5px;
-    margin-bottom: 15px;
-}
-
-/* Style des Icônes dans les Cartes */
-.majestic-card svg {
-    color: var(--color-primary);
-}
-.icon-accent { color: var(--color-accent) !important; } 
-
-/* Solde / Chiffres Clés */
-.wallet-summary .balance,
-.kpi-card .kpi-value {
-    font-size: 2.8rem;
-    font-weight: 900;
-    color: var(--color-accent); /* Couleur Or pour l'impact financier */
-    margin-bottom: 10px;
-}
-
-/* ========================================= */
-/* 👑 Boutiques (Shop Management) */
-/* ========================================= */
-.shop-management {
-    margin-bottom: 40px;
-}
-.shops-list.grid-auto {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-.shop-card.majestic-card h4 {
-    color: var(--color-text-dark);
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-.shop-status {
-    font-size: 0.9rem;
-    padding: 3px 8px;
-    border-radius: 4px;
-    display: inline-block;
-    margin-top: 10px;
-}
-.shop-status.status-open { background-color: #d4edda; color: var(--color-success); }
-.shop-status.status-closed { background-color: #f8d7da; color: #dc3545; }
-
-/* Limite de Boutique */
-.shop-limit-card .limit-status {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--color-primary);
-}
-
-
-/* ========================================= */
-/* 👑 Tableau (Missions & Transactions) */
-/* ========================================= */
-.majestic-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 10px; /* Espace entre les lignes pour un look flottant */
-}
-
-.majestic-table th {
-    background-color: var(--color-primary);
-    color: white;
-    padding: 15px;
-    text-align: left;
-    font-weight: 600;
-    border: none;
-}
-.majestic-table th:first-child { border-top-left-radius: 8px; }
-.majestic-table th:last-child { border-top-right-radius: 8px; }
-
-.majestic-table td {
-    background-color: var(--color-card-bg);
-    padding: 15px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-/* Badges de Statut de Mission */
-.status-badge {
-    padding: 5px 12px;
-    border-radius: 50px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-.status-in_progress { background-color: #fff3cd; color: var(--color-warning); } /* Jaune */
-.status-awaiting_validation { background-color: #cfe2ff; color: var(--color-secondary); } /* Bleu */
-.status-completed { background-color: #d4edda; color: var(--color-success); } /* Vert */
-
-/* ========================================= */
-/* 👑 Boutons et Formulaires Génériques */
-/* ========================================= */
-
+/* Boutons */
 .btn {
     padding: 10px 20px;
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s, opacity 0.2s;
-    border: 1px solid transparent;
-    display: inline-flex; /* Permet d'aligner les icônes et le texte */
+    transition: all 0.2s;
+    border: none;
+    display: inline-flex;
     align-items: center;
-    gap: 5px; /* Espace entre l'icône et le texte */
+    gap: 8px;
 }
 
 .btn:disabled {
@@ -198,81 +98,143 @@
     background-color: var(--color-primary);
     color: white;
 }
-.btn-primary:hover:not(:disabled) { background-color: #003366; }
 
-.btn-secondary {
-    background-color: #6c757d;
-    color: white;
+.btn-primary:hover:not(:disabled) {
+    background-color: #003366;
 }
-.btn-secondary:hover:not(:disabled) { background-color: #5a6268; }
 
 .btn-success {
     background-color: var(--color-success);
     color: white;
 }
-.btn-success:hover:not(:disabled) { background-color: #1e7e34; }
-
-/* 🚨 Boutons spécifiques à l'Acheteur */
-.btn-info {
-    background-color: #17a2b8; /* Cyan pour l'information (Voir Livraison) */
-    color: white;
-}
-.btn-info:hover:not(:disabled) { background-color: #138496; }
 
 .btn-danger {
-    background-color: #dc3545; /* Rouge pour le rejet */
+    background-color: var(--color-danger);
     color: white;
 }
-.btn-danger:hover:not(:disabled) { background-color: #c82333; }
 
-.btn-sm { /* Petit bouton pour les actions dans les tableaux */
-    padding: 6px 12px;
-    font-size: 0.9rem;
+/* Formulaires */
+.form-group {
+    margin-bottom: 20px;
 }
 
-.action-group {
-    display: flex;
-    gap: 8px; /* Espacement entre les boutons Valider/Rejeter/Voir */
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--color-text-dark);
 }
 
-/* Alertes (Messages d'état) */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--color-primary);
+    outline: none;
+}
+
+/* Alertes */
 .alert {
     padding: 15px;
     margin-bottom: 20px;
     border-radius: 8px;
     font-weight: 600;
-    border: 1px solid transparent;
 }
-.alert-success { background-color: #d4edda; color: var(--color-success); border-color: #c3e6cb; }
-.alert-error { background-color: #f8d7da; color: #dc3545; border-color: #f5c6cb; }
-.alert-warning { background-color: #fff3cd; color: var(--color-warning); border-color: #ffeeba; }
 
-
-/* ========================================= */
-/* 👑 Modale (WithdrawalModal.jsx) */
-/* ========================================= */
-
-.form-group {
-    margin-bottom: 15px;
+.alert-success {
+    background-color: #d4edda;
+    color: var(--color-success);
+    border: 1px solid #c3e6cb;
 }
-.form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: var(--color-text-dark);
+
+.alert-error {
+    background-color: #f8d7da;
+    color: var(--color-danger);
+    border: 1px solid #f5c6cb;
 }
-.form-group input[type="number"],
-.form-group select {
+
+.alert-warning {
+    background-color: #fff3cd;
+    color: var(--color-warning);
+    border: 1px solid #ffeeba;
+}
+
+/* Tableaux */
+.majestic-table {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    box-sizing: border-box; 
-    transition: border-color 0.2s;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow-subtle);
 }
-.form-group input:focus,
-.form-group select:focus {
-    border-color: var(--color-primary);
-    outline: none;
+
+.majestic-table th {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.majestic-table td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Badges de statut */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-open { background: #e3f2fd; color: #1976d2; }
+.status-in_progress { background: #fff3e0; color: #f57c00; }
+.status-awaiting_validation { background: #e8f5e8; color: #2e7d32; }
+.status-completed { background: #e8f5e8; color: #2e7d32; }
+
+/* Grilles */
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+/* États de chargement */
+.loading-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    font-size: 1.2rem;
+    color: var(--color-text-light);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .majestic-layout {
+        padding: 15px;
     }
     
+    .grid-3 {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 2rem;
+    }
+    }
