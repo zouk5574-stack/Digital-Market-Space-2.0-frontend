@@ -1,16 +1,18 @@
 // frontend/src/pages/SellerDashboard.jsx
-
-import React, { useState, useEffect } => 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import sellerService from '../services/sellerService';
 import { useAuth } from '../context/AuthContext';
-// import { DollarSign, Briefcase, TrendingUp, Store } from 'lucide-react'; // Icônes pour le design
+import WithdrawalModal from '../components/WithdrawalModal';
+// Import d'icônes (nécessite l'installation de 'lucide-react' ou similaire)
+import { DollarSign, Briefcase, TrendingUp, Store } from 'lucide-react'; 
 
 // --- Composants de Cartes pour le Design Majestueux ---
 
 const WalletCard = ({ balance, onWithdraw }) => (
     <div className="card majestic-card wallet-summary">
+        <DollarSign size={24} className="icon-accent" />
         <h3 className="card-title">Solde Net Retirable</h3>
-        {/* Affiche le solde en gros et formaté */}
         <p className="balance">{balance} XOF</p> 
         <button onClick={onWithdraw} className="btn btn-primary btn-lg">
             Demander un Retrait
@@ -18,13 +20,17 @@ const WalletCard = ({ balance, onWithdraw }) => (
     </div>
 );
 
-const ShopLimitCard = ({ currentCount, maxLimit }) => (
+const ShopLimitCard = ({ currentCount, maxLimit, onCreateShop, isDisabled }) => (
     <div className="card majestic-card shop-limit-card">
+        <Store size={24} className="icon-primary" />
         <h3 className="card-title">Mes Boutiques (E-commerce)</h3>
-        {/* Logique des 3 boutiques intégrée */}
         <p className="limit-status">**{currentCount} / {maxLimit}** Boutiques Créées</p>
-        <button className="btn btn-secondary" disabled={currentCount >= maxLimit}>
-            {currentCount >= maxLimit ? 'Limite Max. Atteinte (3)' : 'Créer une Nouvelle Boutique'}
+        <button 
+            className="btn btn-secondary" 
+            onClick={onCreateShop}
+            disabled={isDisabled}
+        >
+            {isDisabled ? 'Limite Max. Atteinte (3)' : 'Créer une Nouvelle Boutique'}
         </button>
     </div>
 );
@@ -33,45 +39,72 @@ const ShopLimitCard = ({ currentCount, maxLimit }) => (
 
 function SellerDashboard() {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [dashboardData, setDashboardData] = useState({
         wallet: { balance: 0, transactions: [] },
         shops: [],
         freelanceActivity: { assigned_missions: [], applications: [] }
     });
     const [loading, setLoading] = useState(true);
-    const MAX_SHOP_LIMIT = 3; // La règle métier des 3 boutiques
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [alertMessage, setAlertMessage] = useState(null);
+    
+    const MAX_SHOP_LIMIT = 3; 
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const [wallet, shops, activity] = await Promise.all([
+                sellerService.getWalletData(),
+                sellerService.getSellerShops(),
+                sellerService.getSellerFreelanceActivity()
+            ]);
+
+            setDashboardData({
+                wallet: wallet || { balance: 0, transactions: [] },
+                shops: shops || [],
+                freelanceActivity: activity || { assigned_missions: [], applications: [] }
+            });
+            
+        } catch (error) {
+            console.error("Erreur lors du chargement du dashboard :", error);
+            setAlertMessage({ type: 'error', text: "Impossible de charger les données du tableau de bord." });
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Fetch parallèle de toutes les données pour la performance
-                const [wallet, shops, activity] = await Promise.all([
-                    sellerService.getWalletData(),
-                    sellerService.getSellerShops(),
-                    sellerService.getSellerFreelanceActivity()
-                ]);
-
-                setDashboardData({
-                    wallet: wallet,
-                    shops: shops,
-                    freelanceActivity: activity
-                });
-                
-            } catch (error) {
-                console.error("Erreur lors du chargement du dashboard :", error);
-                // Gérer l'affichage d'une alerte d'erreur utilisateur
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchData();
     }, []);
     
-    // Fonctionnalité de retrait (à compléter avec une modale)
+    // Logique de Retrait
     const handleWithdrawal = () => {
-        // Ici, on ouvrirait une modale pour saisir le montant et la méthode de paiement
-        alert(`Retrait demandé pour ${dashboardData.wallet.balance.toFixed(2)} XOF. Logique à implémenter.`);
-        // Exemple: showWithdrawalModal(true);
+        setAlertMessage(null);
+        setIsModalVisible(true);
+    };
+
+    const handleWithdrawalSuccess = (amount) => {
+        setAlertMessage({ type: 'success', text: `Demande de retrait de ${amount} XOF soumise avec succès.` });
+        // Mettre à jour les données du portefeuille après le retrait
+        fetchData(); 
+    };
+
+    // Logique de Création de Boutique
+    const handleCreateShop = async () => {
+        if (dashboardData.shops.length >= MAX_SHOP_LIMIT) {
+            setAlertMessage({ type: 'error', text: "Impossible de créer plus de 3 boutiques. Limite maximale atteinte." });
+            return;
+        }
+        
+        // Redirection vers une page de formulaire de création de boutique (Meilleure UX)
+        // Vous devez créer la route et la page : /seller/shops/create
+        navigate('/seller/shops/create'); 
+    };
+
+    // Logique de soumission de livraison
+    const handleDeliverClick = (missionId) => {
+        navigate(`/seller/missions/${missionId}/deliver`);
     };
 
     if (loading) {
@@ -83,9 +116,23 @@ function SellerDashboard() {
 
     return (
         <div className="seller-dashboard majestic-layout">
+            {/* Composant de Modale de Retrait */}
+            <WithdrawalModal 
+                isVisible={isModalVisible}
+                onClose={() => setIsModalVisible(false)}
+                currentBalance={dashboardData.wallet.balance}
+                onSuccess={handleWithdrawalSuccess}
+                onError={(msg) => setAlertMessage({ type: 'error', text: msg })}
+            />
+            
+            {/* Affichage des alertes */}
+            {alertMessage && (
+                <div className={`alert alert-${alertMessage.type || 'info'}`}>{alertMessage.text}</div>
+            )}
+
             <header className="dashboard-header">
                 <h1>Tableau de Bord Vendeur 👑</h1>
-                <p className="subtitle">Bienvenue, {user?.name || user?.email} ! Gérez vos finances, boutiques et engagements.</p>
+                <p className="subtitle">Bienvenue, **{user?.email}** ! Gérez vos finances, boutiques et engagements.</p>
             </header>
 
             {/* I. Vue d'Ensemble et Finance (Header) */}
@@ -98,11 +145,14 @@ function SellerDashboard() {
                 <ShopLimitCard
                     currentCount={dashboardData.shops.length}
                     maxLimit={MAX_SHOP_LIMIT}
+                    onCreateShop={handleCreateShop}
+                    isDisabled={dashboardData.shops.length >= MAX_SHOP_LIMIT}
                 />
                 
                 {/* KPI clé pour la vision Freelance */}
                 <div className="card majestic-card kpi-card">
-                    <h3 className="card-title">Missions en Cours (In Progress)</h3>
+                    <Briefcase size={24} className="icon-primary" />
+                    <h3 className="card-title">Missions en Cours</h3>
                     <p className="kpi-value">{assignedMissions.filter(m => m.status === 'in_progress').length}</p>
                 </div>
             </section>
@@ -115,15 +165,17 @@ function SellerDashboard() {
                 <div className="shops-list grid-auto">
                     {dashboardData.shops.length > 0 ? (
                         dashboardData.shops.map(shop => (
-                            <div key={shop.id} className="card shop-card">
+                            <div key={shop.id} className="card shop-card majestic-card">
                                 <h4>{shop.name}</h4>
-                                <p>Produits actifs: **{shop.product_count}**</p>
-                                <p className={`shop-status status-${shop.status}`}>{shop.status}</p>
-                                <button className="btn btn-sm btn-link">Gérer le Catalogue</button>
+                                <p>Produits actifs: **{shop.product_count || 0}**</p>
+                                <p className={`shop-status status-${shop.status || 'open'}`}>{shop.status || 'Ouvert'}</p>
+                                <button className="btn btn-sm btn-link" onClick={() => navigate(`/seller/shops/${shop.id}/manage`)}>
+                                    Gérer le Catalogue
+                                </button>
                             </div>
                         ))
                     ) : (
-                        <p className="text-muted">Vous n'avez pas encore de boutique. Cliquez sur 'Créer une Nouvelle Boutique' pour commencer !</p>
+                        <p className="text-muted">Vous n'avez pas encore de boutique. {dashboardData.shops.length < MAX_SHOP_LIMIT ? 'Créez-en une maintenant !' : ''}</p>
                     )}
                 </div>
             </section>
@@ -134,7 +186,6 @@ function SellerDashboard() {
             <section className="freelance-management">
                 <h2>Missions & Candidatures</h2>
                 
-                {/* Missions Actives / Assignées (Priorité UX) */}
                 <h3 className="section-subtitle">Vos Engagements Actifs ({assignedMissions.length})</h3>
                 {assignedMissions.length > 0 ? (
                     <table className="majestic-table full-width">
@@ -150,19 +201,23 @@ function SellerDashboard() {
                             {assignedMissions.map(mission => (
                                 <tr key={mission.id}>
                                     <td>{mission.title}</td>
-                                    <td>{mission.final_price} XOF</td>
+                                    <td className="text-bold">{mission.final_price} XOF</td>
                                     <td>
                                         <span className={`status-badge status-${mission.status}`}>
-                                            {mission.status}
+                                            {mission.status === 'awaiting_validation' ? 'En Validation' : mission.status}
                                         </span>
                                     </td>
                                     <td>
-                                        {/* Action clé pour le flux de validation */}
                                         {mission.status === 'in_progress' && (
-                                            <button className="btn btn-success btn-sm">Soumettre Livraison</button>
+                                            <button 
+                                                className="btn btn-success btn-sm"
+                                                onClick={() => handleDeliverClick(mission.id)}
+                                            >
+                                                Soumettre Livraison
+                                            </button>
                                         )}
                                         {mission.status === 'awaiting_validation' && (
-                                            <p className="text-warning">En attente validation...</p>
+                                            <p className="text-warning">En attente de la validation de l'Acheteur.</p>
                                         )}
                                         {mission.status === 'completed' && (
                                             <p className="text-success">Paiement Libéré ✅</p>
@@ -176,7 +231,6 @@ function SellerDashboard() {
                     <p className="text-muted">Aucune mission ne vous a encore été attribuée.</p>
                 )}
                 
-                {/* Candidatures en attente (Opportunités) */}
                 <h3 className="section-subtitle" style={{ marginTop: '30px' }}>Opportunités en Attente ({pendingApplications.length})</h3>
                 {pendingApplications.length > 0 ? (
                     <p className="text-info">**{pendingApplications.length}** candidatures sont en attente de la décision de l'acheteur.</p>
@@ -185,11 +239,17 @@ function SellerDashboard() {
                 )}
             </section>
 
-            {/* IV. Historique et Retraits (à développer) */}
+            <div className="majestic-separator" />
+
+            {/* IV. Historique et Retraits (à développer - Montrer les 5 dernières transactions) */}
             <section className="withdrawal-history">
-                <h2>Historique des Transactions</h2>
-                {/* Ici serait un tableau des dernières transactions (débit/crédit/commission) */}
-                <p className="text-muted">L'historique détaillé sera affiché ici...</p>
+                <h2>Historique des 5 Dernières Transactions</h2>
+                {dashboardData.wallet.transactions.length > 0 ? (
+                    <p>Tableau des transactions...</p>
+                    // Ici, vous mappez dashboardData.wallet.transactions dans un tableau détaillé.
+                ) : (
+                    <p className="text-muted">Aucune transaction récente à afficher.</p>
+                )}
             </section>
 
         </div>
@@ -197,4 +257,4 @@ function SellerDashboard() {
 }
 
 export default SellerDashboard;
-                                          
+        
