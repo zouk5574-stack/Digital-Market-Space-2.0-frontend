@@ -1,15 +1,13 @@
-// frontend/src/pages/Login.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 function LoginPage() {
-    const [email, setEmail] = useState('');
+    const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     
-    // Récupération des fonctions de contexte (login, loading)
     const { login } = useAuth();
     const navigate = useNavigate();
 
@@ -19,15 +17,12 @@ function LoginPage() {
         setLoading(true);
 
         try {
-            // Appel de la fonction de connexion du contexte
-            const user = await login(email, password);
+            const user = await login(identifier, password);
             
-            // Redirection après connexion réussie
             if (user) {
-                // Redirection basée sur le rôle :
-                // L'utilisateur est redirigé vers son tableau de bord spécifique
                 switch (user.role) {
                     case 'ADMIN':
+                    case 'SUPER_ADMIN':
                         navigate('/admin/dashboard');
                         break;
                     case 'VENDEUR':
@@ -35,58 +30,57 @@ function LoginPage() {
                         break;
                     case 'ACHETEUR':
                     default:
-                        navigate('/dashboard'); // Dashboard général ou page d'accueil
+                        navigate('/dashboard');
                         break;
                 }
             }
-
         } catch (err) {
-            console.error('Login error:', err);
-            // Affiche le message d'erreur du service
-            setError(err.message || "Erreur de connexion. Veuillez vérifier vos identifiants.");
+            setError(err.message || "Erreur de connexion");
             setLoading(false);
         }
     };
 
     return (
-        <div className="login-container">
-            <h2>Connexion à la Marketplace</h2>
-            
-            <form onSubmit={handleSubmit}>
-                {error && <p className="error-message">{error}</p>}
+        <div className="login-container majestic-layout">
+            <div className="majestic-card" style={{ maxWidth: '400px', margin: '50px auto' }}>
+                <h2>Connexion à Digital Market Space</h2>
                 
-                <div className="form-group">
-                    <label htmlFor="email">Email</label>
-                    <input
-                        type="email"
-                        id="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        placeholder="votre.email@exemple.com"
-                    />
-                </div>
+                <form onSubmit={handleSubmit}>
+                    {error && <div className="alert alert-error">{error}</div>}
+                    
+                    <div className="form-group">
+                        <label htmlFor="identifier">Nom d'utilisateur ou Téléphone</label>
+                        <input
+                            type="text"
+                            id="identifier"
+                            value={identifier}
+                            onChange={(e) => setIdentifier(e.target.value)}
+                            required
+                            placeholder="nom_utilisateur ou 770000000"
+                        />
+                    </div>
 
-                <div className="form-group">
-                    <label htmlFor="password">Mot de passe</label>
-                    <input
-                        type="password"
-                        id="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        placeholder="Entrez votre mot de passe"
-                    />
-                </div>
+                    <div className="form-group">
+                        <label htmlFor="password">Mot de passe</label>
+                        <input
+                            type="password"
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            placeholder="Votre mot de passe"
+                        />
+                    </div>
 
-                <button type="submit" disabled={loading}>
-                    {loading ? 'Connexion en cours...' : 'Se Connecter'}
-                </button>
-            </form>
+                    <button type="submit" className="btn btn-primary" disabled={loading}>
+                        {loading ? 'Connexion en cours...' : 'Se Connecter'}
+                    </button>
+                </form>
 
-            <p className="register-link">
-                Pas encore de compte ? <a href="/register">S'inscrire</a>
-            </p>
+                <p className="register-link">
+                    Pas encore de compte ? <a href="/register">S'inscrire</a>
+                </p>
+            </div>
         </div>
     );
 }
