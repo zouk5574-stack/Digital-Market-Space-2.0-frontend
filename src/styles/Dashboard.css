@@ -1,0 +1,256 @@
+/* ========================================= */
+/* 👑 Thème Global & Variables MAJESTUEUSES */
+/* ========================================= */
+:root {
+    /* Couleurs du Thème */
+    --color-primary: #004085;      /* Bleu Saphir (Actions, Headers) */
+    --color-secondary: #007bff;     /* Bleu Clair (Boutons, Liens) */
+    --color-accent: #FFD700;       /* Or (Revenus, Accents Clés) */
+    --color-background: #F4F6F9;   /* Fond Gris Clair Aéré */
+    --color-card-bg: #FFFFFF;      /* Fond des Cartes (Blanc Net) */
+    --color-text-dark: #212529;    /* Texte Principal */
+    --color-text-light: #6c757d;   /* Texte Secondaire */
+    --color-success: #28a745;
+    --color-warning: #ffc107;
+
+    /* Ombres et Espacement */
+    --shadow-subtle: 0 4px 8px rgba(0, 0, 0, 0.05);
+    --shadow-lift: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* ========================================= */
+/* 👑 Layout Général et Structure */
+/* ========================================= */
+.seller-dashboard.majestic-layout {
+    padding: 30px;
+    background-color: var(--color-background);
+    min-height: 100vh;
+}
+
+.dashboard-header {
+    margin-bottom: 40px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.dashboard-header h1 {
+    font-size: 2.5rem;
+    color: var(--color-primary);
+    font-weight: 800;
+}
+
+.subtitle {
+    color: var(--color-text-light);
+    font-style: italic;
+    font-size: 1.1rem;
+}
+
+.majestic-separator {
+    height: 1px;
+    background-color: #E0E0E0;
+    margin: 40px 0;
+}
+
+/* ========================================= */
+/* 👑 Cartes et KPIs (Majestic Cards) */
+/* ========================================= */
+.financial-overview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.majestic-card {
+    background: var(--color-card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow-subtle);
+    padding: 25px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.majestic-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lift);
+}
+
+.card-title {
+    font-size: 1.1rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+
+/* Style des Icônes dans les Cartes */
+.majestic-card svg {
+    color: var(--color-primary);
+}
+.icon-accent { color: var(--color-accent) !important; } 
+
+/* Solde / Chiffres Clés */
+.wallet-summary .balance,
+.kpi-card .kpi-value {
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: var(--color-accent); /* Couleur Or pour l'impact financier */
+    margin-bottom: 10px;
+}
+
+/* ========================================= */
+/* 👑 Boutiques (Shop Management) */
+/* ========================================= */
+.shop-management {
+    margin-bottom: 40px;
+}
+.shops-list.grid-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.shop-card.majestic-card h4 {
+    color: var(--color-text-dark);
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+.shop-status {
+    font-size: 0.9rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 10px;
+}
+.shop-status.status-open { background-color: #d4edda; color: var(--color-success); }
+.shop-status.status-closed { background-color: #f8d7da; color: #dc3545; }
+
+/* Limite de Boutique */
+.shop-limit-card .limit-status {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+
+/* ========================================= */
+/* 👑 Tableau (Missions & Transactions) */
+/* ========================================= */
+.majestic-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px; /* Espace entre les lignes pour un look flottant */
+}
+
+.majestic-table th {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    border: none;
+}
+.majestic-table th:first-child { border-top-left-radius: 8px; }
+.majestic-table th:last-child { border-top-right-radius: 8px; }
+
+.majestic-table td {
+    background-color: var(--color-card-bg);
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Badges de Statut de Mission */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.status-in_progress { background-color: #fff3cd; color: var(--color-warning); } /* Jaune */
+.status-awaiting_validation { background-color: #cfe2ff; color: var(--color-secondary); } /* Bleu */
+.status-completed { background-color: #d4edda; color: var(--color-success); } /* Vert */
+
+/* ========================================= */
+/* 👑 Boutons et Formulaires Génériques */
+/* ========================================= */
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+    border: 1px solid transparent;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+}
+.btn-primary:hover:not(:disabled) { background-color: #003366; }
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+.btn-secondary:hover:not(:disabled) { background-color: #5a6268; }
+
+.btn-success {
+    background-color: var(--color-success);
+    color: white;
+}
+
+/* Alertes (Messages d'état) */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    border: 1px solid transparent;
+}
+.alert-success { background-color: #d4edda; color: var(--color-success); border-color: #c3e6cb; }
+.alert-error { background-color: #f8d7da; color: #dc3545; border-color: #f5c6cb; }
+
+/* ========================================= */
+/* 👑 Modale (WithdrawalModal.jsx) */
+/* (Ceci complète le style en ligne) */
+/* ========================================= */
+/* Le style du titre et du fond est géré en ligne dans le JSX, mais les éléments internes sont ici. */
+
+.modal-overlay {
+    /* Style géré en ligne dans le JSX pour l'immédiateté */
+}
+
+.modal-content {
+    /* Style géré en ligne dans le JSX pour l'immédiateté */
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--color-text-dark);
+}
+.form-group input[type="number"],
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    box-sizing: border-box; /* Assure que padding/border n'augmente pas la taille totale */
+    transition: border-color 0.2s;
+}
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--color-primary);
+    outline: none;
+}
