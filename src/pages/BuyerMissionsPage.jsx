@@ -2,7 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import buyerService from '../services/buyerService';
-import { CheckCircle, XCircle, FileText } from 'lucide-react'; // Icônes d'action
+import { CheckCircle, XCircle, FileText } from 'lucide-react'; 
+
+// 🚨 Importation pour l'harmonie visuelle "Majestueuse"
+import '../styles/Dashboard.css'; 
 
 function BuyerMissionsPage() {
     const navigate = useNavigate();
@@ -60,6 +63,7 @@ function BuyerMissionsPage() {
         return <div className="loading-state majestic-layout">Chargement de vos missions...</div>;
     }
 
+    // Le conteneur utilise la classe majestueuse pour le style
     return (
         <div className="buyer-missions majestic-layout">
             <header className="dashboard-header">
@@ -146,4 +150,3 @@ function BuyerMissionsPage() {
 }
 
 export default BuyerMissionsPage;
-                  
