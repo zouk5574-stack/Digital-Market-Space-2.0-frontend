@@ -2,16 +2,23 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import LoginPage from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// Pages de l'application (à créer)
+// PAGES DE BASE
+import LoginPage from './pages/Login';
+import RegisterPage from './pages/Register'; 
 import HomePage from './pages/HomePage';
+import UnauthorizedPage from './pages/Unauthorized';
+
+// PAGES DU DASHBOARD
 import AdminDashboard from './pages/AdminDashboard';
 import SellerDashboard from './pages/SellerDashboard';
 import GeneralDashboard from './pages/GeneralDashboard';
-import UnauthorizedPage from './pages/Unauthorized';
-import RegisterPage from './pages/Register'; 
+import BuyerMissionsPage from './pages/BuyerMissionsPage'; // <-- Nouvelle page pour l'Acheteur
+
+// PAGES DES FLUX MÉTIER
+import DeliverWorkPage from './pages/DeliverWorkPage'; 
+import CreateMissionPage from './pages/CreateMissionPage'; // <-- À créer par l'Acheteur
 
 
 function App() {
@@ -21,11 +28,15 @@ function App() {
             <AuthProvider>
                 <div className="App">
                     <Routes>
-                        {/* Routes Publiques */}
+                        
+                        {/* --------------------------- */}
+                        {/* Routes Publiques (Accessibles à tous) */}
+                        {/* --------------------------- */}
                         <Route path="/" element={<HomePage />} />
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/register" element={<RegisterPage />} />
                         <Route path="/unauthorized" element={<UnauthorizedPage />} />
+                        
                         
                         {/* --------------------------- */}
                         {/* Routes Protégées par Rôle */}
@@ -40,21 +51,28 @@ function App() {
                         {/* 2. Accès VENDEUR seulement */}
                         <Route element={<ProtectedRoute allowedRoles="VENDEUR" />}>
                             <Route path="/seller/dashboard" element={<SellerDashboard />} />
-                            {/* Ajoutez ici toutes les routes VENDEUR (gestion des produits, missions assignées) */}
+                            
+                            {/* ROUTE CRITIQUE : Soumission de la livraison par le Vendeur */}
+                            <Route 
+                                path="/seller/missions/:missionId/deliver" 
+                                element={<DeliverWorkPage />} 
+                            />
                         </Route>
 
-                        {/* 3. Accès ACHETEUR (et autres, si nécessaire) */}
-                        <Route element={<ProtectedRoute allowedRoles={["ACHETEUR", "VENDEUR", "ADMIN"]} />}>
-                            <Route path="/dashboard" element={<GeneralDashboard />} />
-                            {/* Les routes de la marketplace (créer mission, détails produit, etc.) */}
-                            {/* Pour un ACHETEUR simple, on peut utiliser allowedRoles="ACHETEUR" */}
+                        {/* 3. Accès ACHETEUR (et ACHETEUR/VENDEUR/ADMIN pour les pages communes) */}
+                        <Route element={<ProtectedRoute allowedRoles={["ACHETEUR", "ADMIN"]} />}>
+                            <Route path="/buyer/missions" element={<BuyerMissionsPage />} />
+                            <Route path="/buyer/missions/create" element={<CreateMissionPage />} />
+                            {/* Ajoutez ici toutes les routes Acheteur spécifiques (gestion des paiements, des commandes) */}
                         </Route>
 
-                        {/* 4. Routes nécessitant juste une connexion (aucune vérification de rôle spécifique) */}
+                        {/* 4. Routes Générales (Nécessite juste d'être connecté) */}
                         <Route element={<ProtectedRoute />}>
+                            <Route path="/dashboard" element={<GeneralDashboard />} />
                             {/* Exemple: Page de profil utilisateur, Messagerie... */}
-                            {/* <Route path="/profile" element={<ProfilePage />} /> */}
+                            <Route path="/marketplace" element={<h1>Marketplace (produits et missions)</h1>} />
                         </Route>
+                        
                         
                         {/* Route 404 - Page non trouvée */}
                         <Route path="*" element={<h1>404 - Page Non Trouvée</h1>} />
@@ -67,4 +85,3 @@ function App() {
 }
 
 export default App;
-                          
