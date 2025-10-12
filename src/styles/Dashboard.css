@@ -21,7 +21,9 @@
 /* ========================================= */
 /* 👑 Layout Général et Structure */
 /* ========================================= */
-.seller-dashboard.majestic-layout {
+.seller-dashboard.majestic-layout, /* Appliqué au Seller Dashboard */
+.buyer-missions.majestic-layout    /* Appliqué au Buyer Dashboard */
+{
     padding: 30px;
     background-color: var(--color-background);
     min-height: 100vh;
@@ -182,6 +184,9 @@
     cursor: pointer;
     transition: background-color 0.2s, opacity 0.2s;
     border: 1px solid transparent;
+    display: inline-flex; /* Permet d'aligner les icônes et le texte */
+    align-items: center;
+    gap: 5px; /* Espace entre l'icône et le texte */
 }
 
 .btn:disabled {
@@ -205,6 +210,30 @@
     background-color: var(--color-success);
     color: white;
 }
+.btn-success:hover:not(:disabled) { background-color: #1e7e34; }
+
+/* 🚨 Boutons spécifiques à l'Acheteur */
+.btn-info {
+    background-color: #17a2b8; /* Cyan pour l'information (Voir Livraison) */
+    color: white;
+}
+.btn-info:hover:not(:disabled) { background-color: #138496; }
+
+.btn-danger {
+    background-color: #dc3545; /* Rouge pour le rejet */
+    color: white;
+}
+.btn-danger:hover:not(:disabled) { background-color: #c82333; }
+
+.btn-sm { /* Petit bouton pour les actions dans les tableaux */
+    padding: 6px 12px;
+    font-size: 0.9rem;
+}
+
+.action-group {
+    display: flex;
+    gap: 8px; /* Espacement entre les boutons Valider/Rejeter/Voir */
+}
 
 /* Alertes (Messages d'état) */
 .alert {
@@ -216,20 +245,12 @@
 }
 .alert-success { background-color: #d4edda; color: var(--color-success); border-color: #c3e6cb; }
 .alert-error { background-color: #f8d7da; color: #dc3545; border-color: #f5c6cb; }
+.alert-warning { background-color: #fff3cd; color: var(--color-warning); border-color: #ffeeba; }
+
 
 /* ========================================= */
 /* 👑 Modale (WithdrawalModal.jsx) */
-/* (Ceci complète le style en ligne) */
 /* ========================================= */
-/* Le style du titre et du fond est géré en ligne dans le JSX, mais les éléments internes sont ici. */
-
-.modal-overlay {
-    /* Style géré en ligne dans le JSX pour l'immédiateté */
-}
-
-.modal-content {
-    /* Style géré en ligne dans le JSX pour l'immédiateté */
-}
 
 .form-group {
     margin-bottom: 15px;
@@ -246,11 +267,12 @@
     padding: 10px;
     border: 1px solid #ced4da;
     border-radius: 6px;
-    box-sizing: border-box; /* Assure que padding/border n'augmente pas la taille totale */
+    box-sizing: border-box; 
     transition: border-color 0.2s;
 }
 .form-group input:focus,
 .form-group select:focus {
     border-color: var(--color-primary);
     outline: none;
-}
+    }
+    
