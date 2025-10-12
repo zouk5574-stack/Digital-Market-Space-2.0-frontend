@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import buyerService from '../services/buyerService';
+import { Loader2 } from 'lucide-react'; 
 
 // Importation du style majestueux pour la cohérence visuelle
 import '../styles/Dashboard.css';
@@ -27,9 +28,10 @@ function CreateMissionPage() {
         setLoading(true);
         setAlertMessage(null);
 
-        // Validation simple
-        if (!formData.title || !formData.description || !formData.price || formData.price <= 0) {
-            setAlertMessage({ type: 'error', text: "Veuillez remplir tous les champs correctement. Le prix doit être positif." });
+        // Validation front-end
+        const price = parseFloat(formData.price);
+        if (!formData.title || !formData.description || isNaN(price) || price <= 0) {
+            setAlertMessage({ type: 'error', text: "Veuillez remplir tous les champs correctement. Le prix doit être un nombre positif." });
             setLoading(false);
             return;
         }
@@ -37,7 +39,7 @@ function CreateMissionPage() {
         const missionData = {
             title: formData.title,
             description: formData.description,
-            price: parseFloat(formData.price), // Assurez-vous que le prix est un nombre
+            price: price, 
             category: formData.category,
         };
 
@@ -47,20 +49,20 @@ function CreateMissionPage() {
             
             setAlertMessage({ 
                 type: 'success', 
-                text: `Mission "${newMission.title}" créée avec succès. ${newMission.escrow_amount} XOF ont été mis en séquestre.` 
+                text: `Mission "${newMission.title}" créée avec succès. ${newMission.escrow_amount.toFixed(2)} XOF ont été mis en séquestre. Redirection...` 
             });
             
             // Rediriger vers la liste des missions après un court délai
             setTimeout(() => {
                 navigate('/buyer/missions');
-            }, 3000);
+            }, 2500);
 
         } catch (error) {
-            console.error("Erreur de création de mission :", error);
-            // On suppose que l'erreur indique un fonds insuffisant ou une erreur serveur
+            console.error("Erreur de création de mission :", error.response?.data?.message || error.message);
+            // On affiche le message d'erreur du backend (ex: "Fonds insuffisants")
             setAlertMessage({ 
                 type: 'error', 
-                text: error.message || "Échec de la création de la mission. Vérifiez votre solde." 
+                text: error.response?.data?.message || "Échec de la création de la mission. Vérifiez votre solde ou le serveur." 
             });
         } finally {
             setLoading(false);
@@ -72,8 +74,7 @@ function CreateMissionPage() {
             <header className="dashboard-header">
                 <h1>Créer une Nouvelle Mission 💰 (Escrow)</h1>
                 <p className="subtitle">
-                    En créant cette mission, le montant sera **immédiatement séquestré** (Escrow) depuis votre solde 
-                    et ne sera libéré au Vendeur qu'après votre validation.
+                    Le montant sera **séquestré** (Escrow) depuis votre solde et ne sera libéré au Vendeur qu'après votre validation.
                 </p>
             </header>
 
@@ -126,7 +127,7 @@ function CreateMissionPage() {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="price">Montant (XOF)</label>
+                    <label htmlFor="price">Montant Séquestré (XOF)</label>
                     <input
                         type="number"
                         id="price"
@@ -141,7 +142,13 @@ function CreateMissionPage() {
                 </div>
                 
                 <button type="submit" className="btn btn-primary" disabled={loading}>
-                    {loading ? 'Création en cours...' : 'Créer la Mission & Séquestrer les Fonds'}
+                    {loading ? (
+                        <>
+                            <Loader2 size={18} className="animate-spin" /> Séquestre en cours...
+                        </>
+                    ) : (
+                        'Créer la Mission & Séquestrer les Fonds'
+                    )}
                 </button>
             </form>
         </div>
@@ -149,4 +156,3 @@ function CreateMissionPage() {
 }
 
 export default CreateMissionPage;
-      
