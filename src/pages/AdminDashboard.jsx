@@ -1,6 +1,4 @@
-frontend/src/pages/AdminDashboard.jsx
-
-```jsx
+//frontend/src/pages/AdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
