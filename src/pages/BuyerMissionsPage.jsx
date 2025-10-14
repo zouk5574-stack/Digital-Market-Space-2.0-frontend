@@ -10,7 +10,7 @@ function BuyerMissionsPage() {
     const [alertMessage, setAlertMessage] = useState(null);
     const [selectedMission, setSelectedMission] = useState(null);
     const [showDeliveryDetails, setShowDeliveryDetails] = useState(false);
-    const [downloading, setDownloading] = useState(null); // Track which mission is downloading
+    const [downloading, setDownloading] = useState(null);
 
     const fetchData = async () => {
         setLoading(true);
@@ -39,41 +39,51 @@ function BuyerMissionsPage() {
         }
     };
 
-    // 🆕 FONCTION DE TÉLÉCHARGEMENT
-    const handleDownload = async (mission, filename = null) => {
+    // 🆕 FONCTION DE TÉLÉCHARGEMENT OPTIMISÉE
+    const handleDownload = async (mission) => {
         setDownloading(mission.id);
         
         try {
-            // Si c'est un lien direct vers un fichier (PDF, ZIP, etc.)
-            if (mission.deliverable_link && isDirectFileLink(mission.deliverable_link)) {
-                // Téléchargement direct
+            if (mission.deliverable_link) {
+                // ✅ TÉLÉCHARGEMENT DIRECT - Supabase Storage
                 const link = document.createElement('a');
                 link.href = mission.deliverable_link;
-                link.download = filename || getFilenameFromUrl(mission.deliverable_link);
+                
+                // Extraire le nom du fichier de l'URL ou utiliser un nom par défaut
+                const filename = mission.deliverable_link.split('/').pop() || `livrable-mission-${mission.id}`;
+                link.download = filename;
+                
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                
+                setAlertMessage({ type: 'success', text: "Téléchargement du livrable lancé !" });
             } else {
-                // Si c'est un lien vers une page (Google Drive, etc.), on ouvre dans un nouvel onglet
-                window.open(mission.deliverable_link, '_blank');
+                setAlertMessage({ type: 'warning', text: "Aucun livrable disponible pour le téléchargement." });
             }
-            
-            setAlertMessage({ type: 'success', text: "Téléchargement du livrable lancé !" });
         } catch (error) {
+            console.error("Erreur téléchargement:", error);
             setAlertMessage({ type: 'error', text: "Erreur lors du téléchargement" });
         } finally {
             setDownloading(null);
         }
     };
 
-    // 🆕 FONCTIONS UTILITAIRES POUR LES LIENS
-    const isDirectFileLink = (url) => {
-        const fileExtensions = ['.pdf', '.zip', '.rar', '.doc', '.docx', '.xls', '.xlsx', '.jpg', '.png', '.mp4', '.mp3'];
-        return fileExtensions.some(ext => url.toLowerCase().includes(ext));
-    };
-
-    const getFilenameFromUrl = (url) => {
-        return url.split('/').pop() || 'livrable';
+    // 🆕 DÉTECTION TYPE DE FICHIER POUR ICÔNE
+    const getFileTypeIcon = (fileUrl) => {
+        if (!fileUrl) return <FileText size={16} />;
+        
+        const extension = fileUrl.split('.').pop()?.toLowerCase();
+        const fileTypes = {
+            'pdf': <FileText size={16} style={{ color: '#e74c3c' }} />,
+            'zip': <FileText size={16} style={{ color: '#f39c12' }} />,
+            'doc': <FileText size={16} style={{ color: '#2980b9' }} />,
+            'docx': <FileText size={16} style={{ color: '#2980b9' }} />,
+            'jpg': <FileText size={16} style={{ color: '#27ae60' }} />,
+            'png': <FileText size={16} style={{ color: '#27ae60' }} />
+        };
+        
+        return fileTypes[extension] || <FileText size={16} />;
     };
 
     const getStatusLabel = (status) => {
@@ -134,50 +144,43 @@ function BuyerMissionsPage() {
 
                         <div className="delivery-content">
                             <div className="form-group">
-                                <label><strong>🔗 Lien du livrable:</strong></label>
+                                <label><strong>📎 Fichier livrable:</strong></label>
                                 {selectedMission.deliverable_link ? (
                                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '5px' }}>
-                                        <a 
-                                            href={selectedMission.deliverable_link} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            className="delivery-link"
-                                            style={{ 
-                                                wordBreak: 'break-all',
-                                                color: '#007bff',
-                                                textDecoration: 'underline',
-                                                flex: 1
-                                            }}
-                                        >
-                                            {selectedMission.deliverable_link}
-                                        </a>
-                                        
-                                        {/* 🆕 BOUTONS DE TÉLÉCHARGEMENT DANS LA MODAL */}
-                                        {isDirectFileLink(selectedMission.deliverable_link) ? (
-                                            <button 
-                                                className="btn btn-sm btn-success"
-                                                onClick={() => handleDownload(selectedMission)}
-                                                disabled={downloading === selectedMission.id}
-                                                title="Télécharger le fichier"
-                                            >
-                                                {downloading === selectedMission.id ? (
-                                                    <span>Téléch...</span>
-                                                ) : (
-                                                    <Download size={16} />
-                                                )}
-                                            </button>
-                                        ) : (
-                                            <button 
-                                                className="btn btn-sm btn-info"
-                                                onClick={() => handleDownload(selectedMission)}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+                                            {getFileTypeIcon(selectedMission.deliverable_link)}
+                                            <a 
+                                                href={selectedMission.deliverable_link} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="delivery-link"
+                                                style={{ 
+                                                    wordBreak: 'break-all',
+                                                    color: '#007bff',
+                                                    textDecoration: 'underline',
+                                                }}
                                                 title="Ouvrir dans un nouvel onglet"
                                             >
-                                                <ExternalLink size={16} />
-                                            </button>
-                                        )}
+                                                {selectedMission.deliverable_link.split('/').pop() || 'Livrable'}
+                                            </a>
+                                        </div>
+                                        
+                                        {/* BOUTON TÉLÉCHARGEMENT */}
+                                        <button 
+                                            className="btn btn-sm btn-success"
+                                            onClick={() => handleDownload(selectedMission)}
+                                            disabled={downloading === selectedMission.id}
+                                            title="Télécharger le fichier"
+                                        >
+                                            {downloading === selectedMission.id ? (
+                                                <span>Téléch...</span>
+                                            ) : (
+                                                <Download size={16} />
+                                            )}
+                                        </button>
                                     </div>
                                 ) : (
-                                    <p className="text-muted">Aucun lien fourni</p>
+                                    <p className="text-muted">Aucun fichier livrable fourni</p>
                                 )}
                             </div>
 
@@ -241,6 +244,11 @@ function BuyerMissionsPage() {
                                 <tr key={mission.id}>
                                     <td>
                                         <strong>{mission.title}</strong>
+                                        {mission.deliverable_link && (
+                                            <div style={{ fontSize: '0.8em', color: '#666', marginTop: '2px' }}>
+                                                📎 Livrable disponible
+                                            </div>
+                                        )}
                                     </td>
                                     <td>{mission.budget} XOF</td>
                                     <td>
@@ -268,7 +276,7 @@ function BuyerMissionsPage() {
                                             )}
 
                                             {/* 🆕 TÉLÉCHARGEMENT DIRECT depuis le tableau */}
-                                            {mission.deliverable_link && isDirectFileLink(mission.deliverable_link) && (
+                                            {mission.deliverable_link && (
                                                 <button 
                                                     className="btn btn-sm btn-success"
                                                     onClick={() => handleDownload(mission)}
