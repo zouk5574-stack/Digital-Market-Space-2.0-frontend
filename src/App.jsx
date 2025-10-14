@@ -23,6 +23,9 @@ import CreateMissionPage from './pages/CreateMissionPage';
 import InnovativeMarketplace from './pages/InnovativeMarketplace';
 import AnimatedDashboard from './components/AnimatedDashboard';
 
+// 🆕 NOUVELLE PAGE - NOTIFICATIONS ADMIN
+import AdminNotificationsPage from './pages/AdminNotificationsPage';
+
 // STYLES
 import './styles/Innovation.css';
 import './styles/Dashboard.css';
@@ -87,6 +90,8 @@ function App() {
                   <Route path="/admin/analytics" element={<AnimatedDashboard />} />
                   <Route path="/admin/users" element={<h1>Gestion Utilisateurs</h1>} />
                   <Route path="/admin/finances" element={<h1>Supervision Financière</h1>} />
+                  {/* 🆕 NOUVELLE ROUTE - NOTIFICATIONS ADMIN */}
+                  <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
                 </Route>
 
                 {/* VENDEUR - E-commerce + Freelance */}
@@ -173,7 +178,7 @@ function App() {
                 </div>
               </div>
               <div className="footer-bottom">
-                <p>&copy; 2024 Digital Market Space. Tous droits réservés.</p>
+                <p>&copy; 2025 Digital Market Space. Tous droits réservés.</p>
               </div>
             </footer>
           </div>
