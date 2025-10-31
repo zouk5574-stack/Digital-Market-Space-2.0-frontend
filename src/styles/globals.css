@@ -1,0 +1,22 @@
+/* src/styles/globals.css */
+/* Tailwind base */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* App global styles */
+html, body, #__next {
+  height: 100%;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Small helpers */
+.container {
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
