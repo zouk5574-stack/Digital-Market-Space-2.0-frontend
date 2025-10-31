@@ -1,0 +1,42 @@
+{
+  "name": "digital-market-space-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "axios": "^1.4.0",
+    "swr": "^2.1.0",
+    "clsx": "^2.0.0",
+    "@tanstack": "latest",
+    "@sentry": "latest",
+    "date-fns": "latest",
+    "dompurify": "latest",
+    "framer-motion": "latest",
+    "i18next": "latest",
+    "i18next-resources-to-backend": "latest",
+    "jsdom": "latest",
+    "lru-cache": "latest",
+    "lucide-react": "latest",
+    "react-i18next": "latest",
+    "recharts": "latest",
+    "zustand": "latest"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/node": "^20.8.0",
+    "@types/react": "^18.2.25",
+    "eslint": "^8.46.0",
+    "eslint-config-next": "^14.0.0",
+    "prettier": "^3.0.0"
+  }
+}
