@@ -3,41 +3,111 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Shield, Lock, Key, Eye, EyeOff } from 'lucide-react'
+import { Shield, Lock, Key, Eye, EyeOff, RefreshCw } from 'lucide-react'
 import { AdvancedInput } from '@/components/atomic/advanced-input'
 import { MagneticButton } from '@/components/atomic/magnetic-button'
+import { useToast } from '@/hooks/use-toast'
+import { useLogger } from '@/hooks/use-logger'
 
 interface SecuritySettingsProps {
   settings: any
   onChange: () => void
 }
 
+// Validation schema pour la sécurité
+const securityValidation = {
+  sessionTimeout: (value: number) => value >= 1 && value <= 720,
+  minPasswordLength: (value: number) => value >= 6 && value <= 32,
+  loginAttempts: (value: number) => value >= 1 && value <= 10,
+  loginLockoutTime: (value: number) => value >= 1 && value <= 1440,
+  apiRateLimit: (value: number) => value >= 100 && value <= 10000
+}
+
 export function SecuritySettings({ settings, onChange }: SecuritySettingsProps) {
   const [formData, setFormData] = useState({
-    // Authentication
-    requireEmailVerification: settings?.requireEmailVerification || true,
-    allowSocialLogin: settings?.allowSocialLogin || false,
-    sessionTimeout: settings?.sessionTimeout || 24,
-    
-    // Password Policy
-    minPasswordLength: settings?.minPasswordLength || 8,
-    requireStrongPassword: settings?.requireStrongPassword || true,
-    passwordExpiry: settings?.passwordExpiry || 90,
-    
-    // Rate Limiting
-    loginAttempts: settings?.loginAttempts || 5,
-    loginLockoutTime: settings?.loginLockoutTime || 30,
-    
-    // API Security
-    enableAPIRateLimit: settings?.enableAPIRateLimit || true,
-    apiRateLimit: settings?.apiRateLimit || 1000,
+    requireEmailVerification: settings?.requireEmailVerification ?? true,
+    allowSocialLogin: settings?.allowSocialLogin ?? false,
+    sessionTimeout: settings?.sessionTimeout ?? 24,
+    minPasswordLength: settings?.minPasswordLength ?? 8,
+    requireStrongPassword: settings?.requireStrongPassword ?? true,
+    passwordExpiry: settings?.passwordExpiry ?? 90,
+    loginAttempts: settings?.loginAttempts ?? 5,
+    loginLockoutTime: settings?.loginLockoutTime ?? 30,
+    enableAPIRateLimit: settings?.enableAPIRateLimit ?? true,
+    apiRateLimit: settings?.apiRateLimit ?? 1000,
   })
 
   const [showAdvanced, setShowAdvanced] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const { toast } = useToast()
+  const { logInfo } = useLogger()
+
+  const validateField = (field: string, value: any): string | null => {
+    const validator = securityValidation[field as keyof typeof securityValidation]
+    if (validator && !validator(value)) {
+      return `Valeur invalide pour ${field}`
+    }
+    return null
+  }
 
   const handleChange = (field: string, value: any) => {
+    const error = validateField(field, value)
+    
+    if (error) {
+      setErrors(prev => ({ ...prev, [field]: error }))
+    } else {
+      setErrors(prev => {
+        const newErrors = { ...prev }
+        delete newErrors[field]
+        return newErrors
+      })
+    }
+
     setFormData(prev => ({ ...prev, [field]: value }))
     onChange()
+  }
+
+  const handleSecurityAction = async (action: string) => {
+    try {
+      switch (action) {
+        case 'forceLogout':
+          // Implémentation réelle de déconnexion globale
+          await fetch('/api/admin/security/force-logout', { method: 'POST' })
+          toast({
+            title: 'Succès',
+            description: 'Déconnexion globale effectuée'
+          })
+          break
+        case 'clearCache':
+          await fetch('/api/admin/security/clear-cache', { method: 'POST' })
+          toast({
+            title: 'Succès',
+            description: 'Cache sécurisé vidé'
+          })
+          break
+        case 'regenerateTokens':
+          await fetch('/api/admin/security/regenerate-tokens', { method: 'POST' })
+          toast({
+            title: 'Succès',
+            description: 'Tokens API régénérés'
+          })
+          break
+        case 'securityAudit':
+          await fetch('/api/admin/security/audit', { method: 'POST' })
+          toast({
+            title: 'Audit démarré',
+            description: 'L\'audit de sécurité est en cours'
+          })
+          break
+      }
+      logInfo(`Security action executed: ${action}`)
+    } catch (error) {
+      toast({
+        title: 'Erreur',
+        description: 'Échec de l\'action de sécurité',
+        variant: 'destructive'
+      })
+    }
   }
 
   const securityGroups = [
@@ -65,7 +135,8 @@ export function SecuritySettings({ settings, onChange }: SecuritySettingsProps) 
           type: 'number',
           value: formData.sessionTimeout,
           min: 1,
-          max: 720
+          max: 720,
+          error: errors.sessionTimeout
         }
       ]
     },
@@ -79,7 +150,8 @@ export function SecuritySettings({ settings, onChange }: SecuritySettingsProps) 
           type: 'number',
           value: formData.minPasswordLength,
           min: 6,
-          max: 32
+          max: 32,
+          error: errors.minPasswordLength
         },
         {
           name: 'requireStrongPassword',
@@ -109,7 +181,8 @@ export function SecuritySettings({ settings, onChange }: SecuritySettingsProps) 
           type: 'number',
           value: formData.loginAttempts,
           min: 1,
-          max: 10
+          max: 10,
+          error: errors.loginAttempts
         },
         {
           name: 'loginLockoutTime',
@@ -117,7 +190,8 @@ export function SecuritySettings({ settings, onChange }: SecuritySettingsProps) 
           type: 'number',
           value: formData.loginLockoutTime,
           min: 1,
-          max: 1440
+          max: 1440,
+          error: errors.loginLockoutTime
         }
       ]
     }
@@ -137,7 +211,8 @@ export function SecuritySettings({ settings, onChange }: SecuritySettingsProps) 
       type: 'number',
       value: formData.apiRateLimit,
       min: 100,
-      max: 10000
+      max: 10000,
+      error: errors.apiRateLimit
     }
   ]
 
@@ -184,6 +259,7 @@ export function SecuritySettings({ settings, onChange }: SecuritySettingsProps) 
                     onChange={(e) => handleChange(field.name, e.target.value)}
                     min={field.min}
                     max={field.max}
+                    error={field.error}
                   />
                 )}
               </div>
@@ -239,6 +315,7 @@ export function SecuritySettings({ settings, onChange }: SecuritySettingsProps) 
                     onChange={(e) => handleChange(field.name, e.target.value)}
                     min={field.min}
                     max={field.max}
+                    error={field.error}
                   />
                 )}
               </div>
@@ -255,20 +332,40 @@ export function SecuritySettings({ settings, onChange }: SecuritySettingsProps) 
       >
         <h3 className="text-lg font-semibold text-red-900 mb-4">Actions de Sécurité</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <MagneticButton variant="outline" className="border-red-300 text-red-700 hover:bg-red-100">
+          <MagneticButton 
+            variant="outline" 
+            className="border-red-300 text-red-700 hover:bg-red-100"
+            onClick={() => handleSecurityAction('forceLogout')}
+          >
+            <RefreshCw size={16} />
             Forcer la déconnexion globale
           </MagneticButton>
-          <MagneticButton variant="outline" className="border-red-300 text-red-700 hover:bg-red-100">
+          <MagneticButton 
+            variant="outline" 
+            className="border-red-300 text-red-700 hover:bg-red-100"
+            onClick={() => handleSecurityAction('clearCache')}
+          >
+            <RefreshCw size={16} />
             Vider les caches sensibles
           </MagneticButton>
-          <MagneticButton variant="outline" className="border-red-300 text-red-700 hover:bg-red-100">
+          <MagneticButton 
+            variant="outline" 
+            className="border-red-300 text-red-700 hover:bg-red-100"
+            onClick={() => handleSecurityAction('regenerateTokens')}
+          >
+            <RefreshCw size={16} />
             Régénérer les tokens API
           </MagneticButton>
-          <MagneticButton variant="outline" className="border-red-300 text-red-700 hover:bg-red-100">
+          <MagneticButton 
+            variant="outline" 
+            className="border-red-300 text-red-700 hover:bg-red-100"
+            onClick={() => handleSecurityAction('securityAudit')}
+          >
+            <Shield size={16} />
             Audit de sécurité
           </MagneticButton>
         </div>
       </motion.div>
     </div>
   )
-}
+    }
