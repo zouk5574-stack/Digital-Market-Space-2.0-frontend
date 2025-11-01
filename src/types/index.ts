@@ -17,3 +17,29 @@ export interface ActivityLog {
   createdAt: string
   updatedAt?: string
 }
+
+// types/index.ts (ajouts)
+export interface Withdrawal {
+  _id: string
+  userId: string
+  user?: {
+    _id: string
+    firstName: string
+    lastName: string
+    email: string
+  }
+  amount: number
+  paymentMethod: 'mobile_money' | 'bank_transfer' | 'crypto'
+  paymentDetails: {
+    phoneNumber?: string
+    provider?: string
+    accountNumber?: string
+    bankName?: string
+    walletAddress?: string
+  }
+  status: 'pending' | 'processing' | 'completed' | 'rejected'
+  rejectionReason?: string
+  createdAt: string
+  updatedAt: string
+  processedAt?: string
+}
