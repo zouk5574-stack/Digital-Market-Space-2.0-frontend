@@ -4,9 +4,9 @@
 import { useState } from 'react'
 import { useActivityLogs } from '@/hooks/admin/use-activity-logs'
 import { ActivityLogsTable } from '@/components/admin/tables/activity-logs-table'
-import { ActivityStats } from '@/components/admin/admin-stats-grid'
+import { ActivityStats } from '@/components/admin/activity-stats' // Correction de l'import
 import { motion } from 'framer-motion'
-import { Download, Filter, RefreshCw, AlertTriangle } from 'lucide-react'
+import { Download, RefreshCw, AlertTriangle } from 'lucide-react' // Retiré Filter car non utilisé
 import { MagneticButton } from '@/components/atomic/magnetic-button'
 
 export default function ActivityLogsPage() {
