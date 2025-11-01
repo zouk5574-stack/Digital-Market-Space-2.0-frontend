@@ -78,15 +78,6 @@ export default function ActivityLogsPage() {
         <ActivityStats logs={logs?.data} />
       </motion.div>
 
-      {/* Filters */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <ActivityFilters filters={filters} onFiltersChange={setFilters} />
-      </motion.div>
-
       {/* Logs Table */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
