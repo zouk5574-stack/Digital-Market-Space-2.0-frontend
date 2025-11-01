@@ -5,8 +5,9 @@ import { useState } from 'react'
 import { useAdminMissions } from '@/hooks/admin/use-admin-missions'
 import { MissionsTable } from '@/components/admin/tables/missions-table'
 import { MissionFilters } from '@/components/admin/filters/mission-filters'
+import { MissionsGrid } from '@/components/admin/missions-grid' // Import externe
 import { motion } from 'framer-motion'
-import { Eye, Filter, Download } from 'lucide-react'
+import { Eye, Grid, Download, BarChart3 } from 'lucide-react'
 import { MagneticButton } from '@/components/atomic/magnetic-button'
 
 export default function AdminMissionsPage() {
@@ -18,7 +19,15 @@ export default function AdminMissionsPage() {
   })
   const [view, setView] = useState<'table' | 'grid'>('table')
 
-  const { data: missions, isLoading, refetch } = useAdminMissions(filters)
+  const { data: missions, isLoading, refetch, error } = useAdminMissions(filters)
+
+  // Calcul des statistiques rapides
+  const stats = {
+    total: missions?.data?.length || 0,
+    published: missions?.data?.filter((m: any) => m.status === 'published').length || 0,
+    inProgress: missions?.data?.filter((m: any) => m.status === 'in_progress').length || 0,
+    completed: missions?.data?.filter((m: any) => m.status === 'completed').length || 0,
+  }
 
   return (
     <div className="space-y-6">
@@ -38,52 +47,134 @@ export default function AdminMissionsPage() {
         </div>
         
         <div className="flex items-center gap-3">
+          {/* Sélecteur de vue */}
           <div className="flex bg-slate-100 rounded-lg p-1">
             <button
               onClick={() => setView('table')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${
                 view === 'table' 
                   ? 'bg-white text-slate-900 shadow-sm' 
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Eye size={16} className="inline mr-2" />
+              <Eye size={16} />
               Tableau
             </button>
             <button
               onClick={() => setView('grid')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${
                 view === 'grid' 
                   ? 'bg-white text-slate-900 shadow-sm' 
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Filter size={16} className="inline mr-2" />
+              <Grid size={16} />
               Grille
             </button>
           </div>
           
-          <MagneticButton variant="outline" size="sm">
+          {/* Actions */}
+          <MagneticButton 
+            variant="outline" 
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isLoading}
+          >
             <Download size={16} />
             Exporter
           </MagneticButton>
         </div>
       </motion.div>
 
-      {/* Filters */}
+      {/* Statistiques rapides */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
+        className="grid grid-cols-2 md:grid-cols-4 gap-4"
       >
-        <MissionFilters filters={filters} onFiltersChange={setFilters} />
+        <div className="bg-white rounded-xl border border-slate-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <BarChart3 className="text-blue-600" size={20} />
+            </div>
+            <div>
+              <p className="text-sm text-slate-600">Total</p>
+              <p className="text-xl font-bold text-slate-900">{stats.total}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-slate-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <Eye className="text-green-600" size={20} />
+            </div>
+            <div>
+              <p className="text-sm text-slate-600">Publiées</p>
+              <p className="text-xl font-bold text-slate-900">{stats.published}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-slate-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+              <Grid className="text-amber-600" size={20} />
+            </div>
+            <div>
+              <p className="text-sm text-slate-600">En cours</p>
+              <p className="text-xl font-bold text-slate-900">{stats.inProgress}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-slate-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+              <Download className="text-purple-600" size={20} />
+            </div>
+            <div>
+              <p className="text-sm text-slate-600">Terminées</p>
+              <p className="text-xl font-bold text-slate-900">{stats.completed}</p>
+            </div>
+          </div>
+        </div>
       </motion.div>
 
-      {/* Content */}
+      {/* Filtres */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
+      >
+        <MissionFilters filters={filters} onFiltersChange={setFilters} />
+      </motion.div>
+
+      {/* Banner d'erreur */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3"
+        >
+          <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+            <Download className="text-red-600" size={16} />
+          </div>
+          <div>
+            <p className="text-red-800 font-medium">Erreur de chargement</p>
+            <p className="text-red-600 text-sm">Impossible de charger les missions</p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Contenu */}
+      <motion.div
+        key={view} // Important pour l'animation entre les vues
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3 }}
+        className="space-y-6"
       >
         {view === 'table' ? (
           <MissionsTable 
@@ -99,55 +190,6 @@ export default function AdminMissionsPage() {
           />
         )}
       </motion.div>
-    </div>
-  )
-}
-
-// Composant MissionsGrid pour la vue grille
-function MissionsGrid({ missions, isLoading, onMissionUpdate }: any) {
-  if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="bg-white rounded-xl border border-slate-200 p-6 animate-pulse">
-            <div className="h-4 bg-slate-200 rounded w-3/4 mb-4"></div>
-            <div className="h-3 bg-slate-200 rounded w-full mb-2"></div>
-            <div className="h-3 bg-slate-200 rounded w-2/3 mb-4"></div>
-            <div className="h-6 bg-slate-200 rounded w-1/2"></div>
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {missions.map((mission: any) => (
-        <motion.div
-          key={mission._id}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-all duration-300"
-        >
-          <div className="flex items-start justify-between mb-4">
-            <h3 className="font-semibold text-slate-900 line-clamp-2 flex-1">
-              {mission.title}
-            </h3>
-            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full ml-2">
-              {mission.budget.toLocaleString()} FCFA
-            </span>
-          </div>
-          
-          <p className="text-slate-600 text-sm mb-4 line-clamp-3">
-            {mission.description}
-          </p>
-          
-          <div className="flex items-center justify-between text-sm text-slate-500">
-            <span>{mission.category}</span>
-            <span>{new Date(mission.createdAt).toLocaleDateString()}</span>
-          </div>
-        </motion.div>
-      ))}
     </div>
   )
 }
